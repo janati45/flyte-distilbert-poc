@@ -1,0 +1,5 @@
+flytekit[all]
+transformers
+datasets
+scikit-learn
+torch
