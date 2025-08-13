@@ -106,3 +106,25 @@ download_dataset ──► tokenize_dataset ──► train_and_eval
 - Flyte CLI :
 ```bash
 pip install flytectl pyflyte
+## 7. Généralisation
+
+Cette section explique comment adapter le pipeline à différents **modèles**, **datasets**, et **configurations** sans modifier le code source.
+
+---
+
+### 7.1 Changer de modèle, de dataset, de colonne texte, d’hyperparamètres et de langue
+
+Le pipeline est conçu pour être entièrement configurable via des paramètres.  
+Il supporte n’importe quel **modèle** et **dataset** compatibles Hugging Face, ainsi que la personnalisation de la colonne texte, des hyperparamètres, et la prise en charge de plusieurs langues.
+
+---
+
+#### 1) Changer de modèle
+
+Le pipeline supporte n’importe quel modèle Hugging Face compatible avec la tâche de classification (`AutoModelForSequenceClassification`).
+
+**Exemples :**
+- Pour utiliser **RoBERTa** à la place de DistilBERT :
+```bash
+--model_name roberta-base
+
