@@ -43,6 +43,12 @@ Le pipeline est **généralisable** à d’autres modèles Hugging Face (RoBERTa
    - Sauvegarde du modèle et des artefacts
 
 ### 3.2 Diagramme du flux
+download_dataset ──► tokenize_dataset ──► train_and_eval
+| | ├─► model_dir/
+| | ├─► metrics.json
+| | └─► confusion_matrix.png
+
+
 
 ## 4. Détails du fine-tuning
 
