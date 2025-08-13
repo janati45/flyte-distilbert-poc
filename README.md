@@ -1,3 +1,48 @@
+# POC – Orchestration Flyte pour le fine-tuning de DistilBERT
+
+## 1. Objectif du projet
+Mettre en place un pipeline orchestré avec **Flyte** permettant de fine-tuner un modèle de langage pré-entraîné (par défaut `distilbert-base-uncased`) pour la classification de tickets de support client.  
+L’objectif est de catégoriser les tickets dans différentes classes comme :  
+- `complaint`  
+- `request`  
+- `comment`  
+
+Le pipeline est **généralisable** à d’autres modèles Hugging Face (RoBERTa, CamemBERT, etc.) et à d’autres jeux de données texte/label.
+
+## 2. Dataset utilisé
+
+### 2.1 Nom et source
+- **Nom** : `Customer Support on Twitter`
+- **Source** : Collection TweetEval sur Hugging Face
+
+### 2.2 Caractéristiques
+- **Nombre de classes** : `complaint`, `request`, `comment`
+- **Type de données** : tweets courts simulant des tickets clients
+- **Avantages** :
+  - Format proche des cas réels en entreprise
+  - Compatible avec BERT-like models
+  - Adapté aux tâches de classification multi-classes
+
+## 3. Structure du pipeline Flyte
+
+### 3.1 Étapes principales
+1. **Téléchargement et préparation des données**
+   - Chargement du dataset Hugging Face
+   - Création d’un split `validation` si absent
+   - Sauvegarde sur disque (`FlyteDirectory`)
+2. **Tokenisation**
+   - Détection de la colonne texte
+   - Application de `AutoTokenizer` du modèle choisi
+   - Padding et truncation (`max_length`)
+   - Sauvegarde du dataset tokenisé
+3. **Entraînement et évaluation**
+   - Utilisation de `AutoModelForSequenceClassification`
+   - Entraînement via `Trainer` (Transformers)
+   - Évaluation : Accuracy, F1 macro
+   - Génération d’une matrice de confusion
+   - Sauvegarde du modèle et des artefacts
+
+### 3.2 Diagramme du flux
 
 ## 4. Détails du fine-tuning
 
