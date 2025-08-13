@@ -104,21 +104,60 @@ download_dataset ──► tokenize_dataset ──► train_and_eval
 - Python ≥ 3.10
 - Docker (optionnel)
 - Flyte CLI :
-```bash
 pip install flytectl pyflyte
 
 ## 7. Généralisation
 
-Cette section explique comment adapter le pipeline à différents **modèles**, **datasets**, et **configurations** sans modifier le code source.
+Cette section explique comment adapter le pipeline à différents **modèles**, **datasets**, et **configurations**, tout en détaillant comment Flyte gère l’orchestration des tâches dans un environnement Kubernetes.  
+L’objectif est que le pipeline puisse être réutilisé facilement pour d’autres cas d’usage, d’autres langues et d’autres environnements de déploiement.
 
+---
 
+### 7.1 Rôle de Flyte dans la généralisation
 
-### 7.1 Changer de modèle
+Flyte est une **plateforme d’orchestration de workflows** conçue pour exécuter des pipelines de données et de Machine Learning de manière **répartie, scalable et traçable**.  
+Son fonctionnement repose sur **Kubernetes** et il permet de :
 
-Le pipeline supporte n’importe quel modèle Hugging Face compatible avec la tâche de classification (`AutoModelForSequenceClassification`).
+- **Découper** un pipeline en plusieurs tâches (tasks) indépendantes.
+- **Planifier et exécuter** chaque tâche sur un cluster Kubernetes.
+- **Allouer dynamiquement les ressources** (CPU, RAM, GPU) en fonction des besoins de chaque tâche.
+- **Rejouer** une tâche sans relancer l’ensemble du pipeline.
+- **Tracer et monitorer** l’exécution via une interface web interactive.
+- **Versionner** les workflows pour reproduire facilement les expériences.
 
-#### Exemples :
-- Pour utiliser **RoBERTa** à la place de DistilBERT :
+Chaque tâche Flyte est **conteneurisée** (via Docker) et s’exécute dans un **pod Kubernetes**.  
+L’utilisateur n’a pas besoin de gérer directement les pods : Flyte et Kubernetes s’en chargent automatiquement.
+
+---
+
+### 7.2 Architecture avec Kubernetes et clusters
+
+#### Kubernetes
+Kubernetes est un orchestrateur de conteneurs qui gère :
+- **Le déploiement** des conteneurs.
+- **Le scaling automatique** (vertical ou horizontal).
+- **La tolérance aux pannes** (relance des pods défaillants).
+- **L’isolement** des tâches.
+
+Flyte utilise Kubernetes comme couche d’exécution :  
+- **Chaque étape du pipeline** devient un **pod Kubernetes**.
+- Les dépendances entre étapes sont gérées par Flyte grâce à la définition des inputs/outputs.
+- Les ressources sont définies dans le code Flyte (`resources=Resources(cpu="2", mem="4Gi", gpu="1")`).
+
+#### Clusters
+- En local, on peut exécuter Flyte via **Flyte Sandbox** (cluster Kubernetes léger, tournant dans Docker).
+- En production, Flyte s’exécute sur un **cluster Kubernetes complet** (GKE, EKS, AKS, ou on-premise).
+- Les tâches gourmandes (ex : fine-tuning avec GPU) sont envoyées automatiquement sur des **nœuds GPU** du cluster.
+
+---
+
+### 7.3 Changer de modèle
+
+Le pipeline supporte n’importe quel modèle Hugging Face compatible avec `AutoModelForSequenceClassification`.
+
+**Exemples :**
+- RoBERTa :
 ```bash
 --model_name roberta-base
+
 
